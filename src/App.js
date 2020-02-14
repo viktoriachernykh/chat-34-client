@@ -1,26 +1,31 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    messages: []
+  };
+
+  stream = new EventSource(`http://localhost:4000/stream`);
+
+  componentDidMount() {
+    this.stream.onmessage = event => {
+      // console.log("event test", event.data); // looks like array but NO IT'S NOT, it's just a string
+      const parsed = JSON.parse(event.data);
+      this.setState({ messages: parsed });
+      // console.log(parsed); // now it's array of objects
+    };
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>Messages</h1>
+        {!this.state.messages && "Loading..."}
+        {this.state.messages &&
+          this.state.messages.map(m => <p key={m.id}>{m.text}</p>)}
+      </div>
+    );
+  }
 }
 
 export default App;
